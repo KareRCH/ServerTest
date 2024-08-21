@@ -32,22 +32,26 @@ int main()
 	tAddr.sin_addr.s_addr = inet_addr(LOCAL_IP);
 
 	char Packet[PACKET_LENGTH] = {};
-	strcpy_s(Packet, "Send from Client");
+	while (true)
+	{
+		ZeroMemory(Packet, PACKET_LENGTH);
+		cin >> Packet;
 
-	// <<< sendto >>>
-	sendto(hSocket, Packet, strlen(Packet), 0, (SOCKADDR*)&tAddr, sizeof(tAddr));
+		// <<< sendto >>>
+		sendto(hSocket, Packet, strlen(Packet), 0, (SOCKADDR*)&tAddr, sizeof(tAddr));
 
-	// <<< recvfrom 준비 >>>
-	// 여기서도 서로 송수신을 위해 응답 받을 Dest Address 준비.
-	SOCKADDR_IN tDestAddr = {};
-	int iDestSize = sizeof(tDestAddr);
+		// <<< recvfrom 준비 >>>
+		// 여기서도 서로 송수신을 위해 응답 받을 Dest Address 준비.
+		SOCKADDR_IN tDestAddr = {};
+		int iDestSize = sizeof(tDestAddr);
 
-	// <<< recvfrom >>>
-	// (SOCKADDR*)&tDestAddr : 패킷을 전송한 주소가 여기로 들어온다.
-	recvfrom(hSocket, Packet, PACKET_LENGTH, 0, (SOCKADDR*)&tDestAddr, &iDestSize);
+		// <<< recvfrom >>>
+		// (SOCKADDR*)&tDestAddr : 패킷을 전송한 주소가 여기로 들어온다.
+		recvfrom(hSocket, Packet, PACKET_LENGTH, 0, (SOCKADDR*)&tDestAddr, &iDestSize);
 
-	// 패킷 메시지 출력
-	cout << "I am Client : " << Packet << endl;
+		// 패킷 메시지 출력
+		cout << "Server(" << tDestAddr.sin_zero << ") : " << Packet << endl;
+	}
 
 	// <<< close >>>
 	// 종료시 사용한 소켓 자원 반환

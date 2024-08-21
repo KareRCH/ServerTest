@@ -50,20 +50,22 @@ int main()
 	// arg 4 : flag 값으로 다양한 옵션값을 줄 수 있지만 보통 디폴트로 0을 전달
 	// arg 5 : 패킷을 전송한 주소가 여기 구조체로 들어온다.
 	// arg 6 : 패킷을 전송한 주소 구조체의 사이즈
-	recvfrom(hSocket, Packet, sizeof(Packet), 0, (SOCKADDR*)&tDestAddr, &iDestLength);
+	while (true)
+	{
+		ZeroMemory(Packet, PACKET_LENGTH);
+		if (SUCCEEDED(recvfrom(hSocket, Packet, sizeof(Packet), 0, (SOCKADDR*)&tDestAddr, &iDestLength)))
+		{
+			if (FAILED(WSAGetLastError()))
+				break;
 
-	cout << "I am Server : " << Packet << endl;
+			cout << "Client(" << tDestAddr.sin_zero << ") : " << Packet << endl;
 
-	// 다시 데이터를 송신하기 전에 패킷 비우기
-	memset(Packet, 0, PACKET_LENGTH);
-
-	// 패킷 메시지 설정
-	strcpy_s(Packet, "Send from Server");
-
-	// <<< sendto >>>
-	// strlen(Packet) : 보내고자 하는 패킷의 길이 만큼 전송
-	// (SOCKADDR*)&tDestAddr : recvfrom을 통해서 받게된 전송한 쪽의 주소로 패킷 전송
-	sendto(hSocket, Packet, strlen(Packet), 0, (SOCKADDR*)&tDestAddr, iDestLength);
+			// <<< sendto >>>
+			// strlen(Packet) : 보내고자 하는 패킷의 길이 만큼 전송
+			// (SOCKADDR*)&tDestAddr : recvfrom을 통해서 받게된 전송한 쪽의 주소로 패킷 전송
+			sendto(hSocket, Packet, strlen(Packet), 0, (SOCKADDR*)&tDestAddr, iDestLength);
+		}
+	}
 
 	// <<< close >>>
 	// 종료시 사용한 소켓 자원 반환
